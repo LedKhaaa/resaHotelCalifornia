@@ -1,11 +1,11 @@
 <?php
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-
 require_once '../config/db_connect.php';
 
+$conn = openDatabaseConnection();
+
 $errors = [];
+$nom = $telephone = $email = '';
+$nombre_personnes = 1;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $nom = $_POST['nom'];
@@ -13,61 +13,72 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = $_POST['email'];
     $nombre_personnes = (int)$_POST['nombre_personnes'];
 
-    // Validation simple
-    if (empty($nom)) {
-        $errors[] = "Le nom est obligatoire.";
-    }
-    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        $errors[] = "L'adresse email est invalide.";
-    }
-    if ($nombre_personnes <= 0) {
-        $errors[] = "Le nombre de personnes doit être supérieur à zéro.";
-    }
+    if (empty($nom)) $errors[] = "Le nom est obligatoire.";
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) $errors[] = "Email invalide.";
+    if ($nombre_personnes <= 0) $errors[] = "Nombre de personnes doit être > 0.";
 
     if (empty($errors)) {
-        $conn = openDatabaseConnection();
         $stmt = $conn->prepare("INSERT INTO clients (nom, telephone, email, nombre_personnes) VALUES (?, ?, ?, ?)");
         $stmt->execute([$nom, $telephone, $email, $nombre_personnes]);
-        closeDatabaseConnection($conn);
 
+        closeDatabaseConnection($conn);
         header("Location: listClients.php?success=1");
         exit;
     }
 }
+
+closeDatabaseConnection($conn);
 ?>
 
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Ajouter un client</title>
     <meta charset="UTF-8">
+    <title>Ajouter un Client</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
-    <h1>Ajouter un nouveau client</h1>
+
+<?php include '../asset/navbar.php'; ?>
+
+<div class="container mt-5">
+    <h2 class="text-center mb-4">Ajouter un Client</h2>
 
     <?php if (!empty($errors)): ?>
-        <div style="color: red;">
-            <?php foreach($errors as $error): ?>
+        <div class="alert alert-danger">
+            <?php foreach ($errors as $error): ?>
                 <p><?= $error ?></p>
             <?php endforeach; ?>
         </div>
     <?php endif; ?>
 
-    <form method="post">
-        <label>Nom :</label><br>
-        <input type="text" name="nom" required><br><br>
+    <form method="post" class="row g-3">
+        <div class="col-md-6">
+            <label class="form-label">Nom</label>
+            <input type="text" class="form-control" name="nom" value="<?= htmlspecialchars($nom) ?>" required>
+        </div>
 
-        <label>Téléphone :</label><br>
-        <input type="text" name="telephone" required><br><br>
+        <div class="col-md-6">
+            <label class="form-label">Téléphone</label>
+            <input type="text" class="form-control" name="telephone" value="<?= htmlspecialchars($telephone) ?>" required>
+        </div>
 
-        <label>Email :</label><br>
-        <input type="email" name="email" required><br><br>
+        <div class="col-md-6">
+            <label class="form-label">Email</label>
+            <input type="email" class="form-control" name="email" value="<?= htmlspecialchars($email) ?>" required>
+        </div>
 
-        <label>Nombre de personnes :</label><br>
-        <input type="number" name="nombre_personnes" min="1" required><br><br>
+        <div class="col-md-6">
+            <label class="form-label">Nombre de personnes</label>
+            <input type="number" class="form-control" name="nombre_personnes" value="<?= $nombre_personnes ?>" min="1" required>
+        </div>
 
-        <button type="submit">Ajouter</button>
-        <a href="listClients.php">Annuler</a>
+        <div class="col-12">
+            <button class="btn btn-primary">Enregistrer</button>
+            <a href="listClients.php" class="btn btn-secondary">Annuler</a>
+        </div>
     </form>
+</div>
+
 </body>
 </html>
