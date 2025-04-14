@@ -1,98 +1,71 @@
-<?php
-require_once '../config/db_connect.php';
-
-$conn = openDatabaseConnection();
-
-// Récupération de l'ID de réservation 
-$id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
-
-if ($id === 0) {
-    die("ID de réservation invalide.");
-}
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Récupération des données du formulaire
-    $client_nom = $_POST['client_nom'];
-    $client_telephone = $_POST['client_telephone'];
-    $client_email = $_POST['client_email'];
-    $nombre_personnes = $_POST['nombre_personnes'];
-    $date_arrivee = $_POST['date_arrivee'];
-    $date_depart = $_POST['date_depart'];
-    $chambre_id = $_POST['chambre_id'];
-    $client_id = $_POST['client_id'];
-
-    // Mise à jour du client
-    $stmtClient = $conn->prepare("UPDATE clients SET nom = ?, telephone = ?, email = ?, nombre_personnes = ? WHERE client_id = ?");
-    $stmtClient->execute([$client_nom, $client_telephone, $client_email, $nombre_personnes, $client_id]);
-
-    // Mise à jour de la réservation
-    $stmtReservation = $conn->prepare("UPDATE reservations SET chambre_id = ?, date_arrivee = ?, date_depart = ? WHERE id = ?");
-    $stmtReservation->execute([$chambre_id, $date_arrivee, $date_depart, $id]);
-
-    header('Location: listReservations.php');
-    exit();
-}
-
-// Récupération des données de la réservation actuelle
-$stmt = $conn->prepare("SELECT r.*, c.* FROM reservations r JOIN clients c ON r.client_id = c.client_id WHERE r.id = ?");
-$stmt->execute([$id]);
-$reservation = $stmt->fetch(PDO::FETCH_ASSOC);
-
-if (!$reservation) {
-    die("Réservation non trouvée.");
-}
-
-// Récupération des chambres pour le menu déroulant
-$stmtChambres = $conn->query("SELECT chambre_id, num, capacité FROM chambres");
-$chambres = $stmtChambres->fetchAll(PDO::FETCH_ASSOC);
-
-closeDatabaseConnection($conn);
-?>
-
 <!DOCTYPE html>
-<html lang="fr">
+<html>
 <head>
-    <title>Modifier une réservation</title>
     <meta charset="UTF-8">
-    <link rel="stylesheet" href="../assets/style.css">
+    <title>Ajouter une Réservation</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
-    <div class="container">
-        <h1>Modifier la réservation</h1>
 
-        <form method="POST">
-            <input type="hidden" name="client_id" value="<?= $reservation['client_id'] ?>">
+<?php include '../asset/navbar.php'; ?>
 
-            <label>Nom :</label>
-            <input type="text" name="client_nom" value="<?= htmlspecialchars($reservation['nom']) ?>" required>
+<div class="container mt-5">
+    <h2 class="text-center mb-4">Ajouter une Réservation</h2>
 
-            <label>Téléphone :</label>
-            <input type="text" name="client_telephone" value="<?= htmlspecialchars($reservation['telephone']) ?>" required>
+    <?php if (!empty($errors)): ?>
+        <div class="alert alert-danger">
+            <?php foreach($errors as $error): ?>
+                <p><?= $error ?></p>
+            <?php endforeach; ?>
+        </div>
+    <?php endif; ?>
 
-            <label>Email :</label>
-            <input type="email" name="client_email" value="<?= htmlspecialchars($reservation['email']) ?>" required>
-
-            <label>Nombre de personnes :</label>
-            <input type="number" name="nombre_personnes" value="<?= $reservation['nombre_personnes'] ?>" required>
-
-            <label>Date d'arrivée :</label>
-            <input type="date" name="date_arrivee" value="<?= $reservation['date_arrivee'] ?>" required>
-
-            <label>Date de départ :</label>
-            <input type="date" name="date_depart" value="<?= $reservation['date_depart'] ?>" required>
-
-            <label>Chambre :</label>
-            <select name="chambre_id" required>
-                <?php foreach ($chambres as $chambre): ?>
-                    <option value="<?= $chambre['chambre_id'] ?>" <?= $reservation['chambre_id'] == $chambre['chambre_id'] ? 'selected' : '' ?>>
-                        <?= htmlspecialchars($chambre['num']) ?> (<?= $chambre['capacité'] ?> pers.)
+    <form method="post" class="row g-3">
+        <div class="col-md-6">
+            <label class="form-label">Client</label>
+            <select name="client_id" class="form-select" required>
+                <option value="">-- Sélectionnez un client --</option>
+                <?php foreach ($clients as $client): ?>
+                    <option value="<?= $client['client_id'] ?>" <?= ($client['client_id'] == $selectedClientId) ? 'selected' : '' ?>>
+                        <?= htmlspecialchars($client['nom']) ?>
                     </option>
                 <?php endforeach; ?>
             </select>
+        </div>
 
-            <button type="submit" class="btn btn-primary">Enregistrer</button>
+        <div class="col-md-6">
+            <label class="form-label">Chambre</label>
+            <select name="chambre_id" class="form-select" required>
+                <option value="">-- Sélectionnez une chambre --</option>
+                <?php foreach ($chambres as $chambre): ?>
+                    <option value="<?= $chambre['chambre_id'] ?>" <?= ($chambre['chambre_id'] == $selectedChambreId) ? 'selected' : '' ?>>
+                        N°<?= $chambre['num'] ?> (<?= $chambre['capacité'] ?> pers.)
+                    </option>
+                <?php endforeach; ?>
+            </select>
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label">Date d'arrivée</label>
+            <input type="date" class="form-control" name="date_arrivee" value="<?= $date_arrivee ?? '' ?>" required>
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label">Date de départ</label>
+            <input type="date" class="form-control" name="date_depart" value="<?= $date_depart ?? '' ?>" required>
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label">Nombre de personnes</label>
+            <input type="number" class="form-control" name="nombre_personnes" value="<?= $nombre_personnes ?? 1 ?>" min="1" required>
+        </div>
+
+        <div class="col-12">
+            <button class="btn btn-primary">Enregistrer</button>
             <a href="listReservations.php" class="btn btn-secondary">Annuler</a>
-        </form>
-    </div>
+        </div>
+    </form>
+</div>
+
 </body>
 </html>

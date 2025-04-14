@@ -1,79 +1,42 @@
-<?php
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-
-require_once '../config/db_connect.php';
-
-$id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
-if ($id <= 0) {
-    header("Location: listChambres.php");
-    exit;
-}
-
-$conn = openDatabaseConnection();
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $numero = $_POST['numero'];
-    $capacite = (int)$_POST['capacite'];
-
-    $errors = [];
-
-    if (empty($numero)) {
-        $errors[] = "Le numéro de chambre est obligatoire.";
-    }
-
-    if ($capacite <= 0) {
-        $errors[] = "La capacité doit être un nombre positif.";
-    }
-
-    if (empty($errors)) {
-        $stmt = $conn->prepare("UPDATE chambres SET num = ?, capacité = ? WHERE chambre_id = ?");
-        $stmt->execute([$numero, $capacite, $id]);
-
-        header("Location: listChambres.php?success=1");
-        exit;
-    }
-} else {
-    $stmt = $conn->prepare("SELECT * FROM chambres WHERE chambre_id = ?");
-    $stmt->execute([$id]);
-    $chambre = $stmt->fetch(PDO::FETCH_ASSOC);
-
-    if (!$chambre) {
-        echo "Chambre introuvable.";
-        exit;
-    }
-}
-
-closeDatabaseConnection($conn);
-?>
-
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Modifier une Chambre</title>
     <meta charset="UTF-8">
+    <title>Ajouter une Chambre</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
-    <h1>Modifier une Chambre</h1>
+
+<?php include '../asset/navbar.php'; ?>
+
+<div class="container mt-5">
+    <h2 class="text-center mb-4">Ajouter une Chambre</h2>
 
     <?php if (!empty($errors)): ?>
-        <div style="color: red;">
+        <div class="alert alert-danger">
             <?php foreach($errors as $error): ?>
                 <p><?= $error ?></p>
             <?php endforeach; ?>
         </div>
     <?php endif; ?>
 
-    <form method="post">
-        <label>Numéro de Chambre:</label><br>
-        <input type="text" name="numero" value="<?= htmlspecialchars($chambre['num']) ?>"><br><br>
+    <form method="post" class="row g-3">
+        <div class="col-md-6">
+            <label class="form-label">Numéro</label>
+            <input type="text" class="form-control" name="numero" value="<?= htmlspecialchars($numero ?? '') ?>" required>
+        </div>
 
-        <label>Capacité:</label><br>
-        <input type="number" name="capacite" value="<?= htmlspecialchars($chambre['capacité']) ?>" min="1"><br><br>
+        <div class="col-md-6">
+            <label class="form-label">Capacité</label>
+            <input type="number" class="form-control" name="capacite" value="<?= $capacite ?? 1 ?>" min="1" required>
+        </div>
 
-        <button type="submit">Enregistrer</button>
-        <a href="listChambres.php">Annuler</a>
+        <div class="col-12">
+            <button class="btn btn-primary">Enregistrer</button>
+            <a href="listChambres.php" class="btn btn-secondary">Annuler</a>
+        </div>
     </form>
+</div>
+
 </body>
 </html>
