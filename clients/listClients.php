@@ -10,10 +10,25 @@ closeDatabaseConnection($conn);
 <html>
 <head>
     <title>Liste des Clients</title> 
+    <meta charset="UTF-8">
 </head>
 <body>
+
+    <!-- 🔽 Affichage de la barre de navigation -->
+    <?php include '../includes/navbar.php'; ?>
+
     <h1>Liste des Clients</h1>
-    <a href="createClient.php">Ajouter un client</a>
+    <a href="createClients.php">Ajouter un client</a>
+
+    <!-- messages -->
+    <?php if (isset($_GET['error']) && $_GET['error'] === 'has_reservations'): ?>
+        <p style="color: red; text-align: center;">Ce client ne peut pas être supprimé car il a des réservations.</p>
+    <?php elseif (isset($_GET['success']) && $_GET['success'] === 'deleted'): ?>
+        <p style="color: green; text-align: center;">Client supprimé avec succès.</p>
+    <?php elseif (isset($_GET['success']) && $_GET['success'] === '1'): ?>
+        <p style="color: green; text-align: center;">Client ajouté/modifié avec succès.</p>
+    <?php endif; ?>
+
     <table border="1" style="width: 60%; min-width: 400px; margin: 0 auto;">
         <tr>
             <th>ID</th>
