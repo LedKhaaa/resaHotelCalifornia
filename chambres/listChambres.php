@@ -11,7 +11,7 @@ closeDatabaseConnection($conn);
     <title>Liste des Chambres</title> 
 </head>
 <body>
-    <h1>Liste deux Chambres</h1>
+    <h1>Liste des Chambres</h1>
     <a href="createChambre.php">Ajouter une chambre</a>
     <table border="1" style="width: 60%; min-width: 400px; margin: 0 auto;">
         <tr>
