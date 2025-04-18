@@ -30,7 +30,7 @@
 <div class="container d-flex justify-content-center align-items-center min-vh-100">
     <div class="text-center hero">
         <h1 class="mb-4">Bienvenue à l’Hôtel California 🌴</h1>
-        <p class="lead mb-4">Gérez les réservations, les clients et les chambres avec style.</p>
+        <p class="lead mb-4">Gérez les réservations, les clients et les chambres de votre magnifique Hôtel.</p>
         <div class="d-grid gap-3 d-md-block">
             <a href="clients/listClients.php" class="btn btn-light btn-lg btn-glow me-2"><i class="bi bi-people"></i> Clients</a>
             <a href="chambres/listChambres.php" class="btn btn-light btn-lg btn-glow me-2"><i class="bi bi-door-closed"></i> Chambres</a>
