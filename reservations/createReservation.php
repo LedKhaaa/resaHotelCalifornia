@@ -74,6 +74,7 @@ closeDatabaseConnection($conn);
 </head>
 <body>
 
+<?php include_once '../asset/gestionMessage.php'; ?> 
 <?php include '../asset/navbar.php'; ?>
 
 <div class="container mt-5">

@@ -25,6 +25,7 @@
 </head>
 <body>
 
+<?php include_once '../asset/gestionMessage.php'; ?> 
 <?php include 'asset/navbar.php'; ?>
 
 <div class="container d-flex justify-content-center align-items-center min-vh-100">
