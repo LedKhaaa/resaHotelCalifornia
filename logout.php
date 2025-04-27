@@ -1,8 +1,12 @@
 <?php
-session_start();
-session_unset();
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Détruire la session
 session_destroy();
 
-header('Location: index.php?message=Déconnexion réussie.');
+// Rediriger vers la page d'accueil
+header('Location: index.php?message=Déconnecté avec succès');
 exit;
 ?>

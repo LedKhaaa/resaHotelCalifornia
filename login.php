@@ -1,5 +1,11 @@
 <?php
-session_start();
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+
 require_once 'config/db_connect.php';
 
 $errors = [];
@@ -20,9 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         closeDatabaseConnection($conn);
 
         if ($user) {
-            // Vérifie le mot de passe
-            if (password_verify($password, $user['password'])) {
-                // Authentification réussie
+            if ($password === $user['password']) {
                 $_SESSION['user_id'] = $user['employes_id'];
                 $_SESSION['username'] = $user['username'];
                 $_SESSION['role'] = $user['role'];
@@ -45,10 +49,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <title>Connexion Employé</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: url('fondhotel.png') no-repeat center center fixed;
+            background-size: cover;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .card-login {
+            background: rgba(0, 0, 0, 0.7);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 0 20px rgba(255,255,255,0.3);
+            color: white;
+            width: 400px;
+        }
+        .btn-primary {
+            background-color: #00BFFF;
+            border: none;
+            transition: 0.3s;
+        }
+        .btn-primary:hover {
+            background-color: #009ACD;
+        }
+        label {
+            margin-bottom: 5px;
+        }
+        .form-control {
+            border-radius: 10px;
+        }
+    </style>
 </head>
 <body>
 
-<div class="container mt-5">
+<div class="card-login">
     <h2 class="text-center mb-4">Connexion Employé 🔐</h2>
 
     <?php if (!empty($errors)): ?>
@@ -59,7 +95,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
     <?php endif; ?>
 
-    <form method="post" class="row g-3 mx-auto" style="max-width: 400px;">
+    <form method="post" class="row g-3">
         <div class="col-12">
             <label class="form-label">Nom d'utilisateur</label>
             <input type="text" name="username" class="form-control" required>
@@ -71,10 +107,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
 
         <div class="col-12 text-center">
-            <button type="submit" class="btn btn-primary mt-3">Se connecter</button>
+            <button type="submit" class="btn btn-primary mt-3 px-4">Se connecter</button>
         </div>
     </form>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
