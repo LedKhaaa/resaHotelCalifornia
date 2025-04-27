@@ -1,5 +1,11 @@
 <?php
 require_once '../config/db_connect.php';
+require_once '../auth/authFunctions.php';
+if (!hasRole("standard")) {
+    $encodedMessage = urlencode("ERREUR : Vous n'avez pas les bonnes permissions.");
+    header("Location: /resaHotelCalifornia/index.php?message=$encodedMessage"); 
+    exit;
+}
 $conn = openDatabaseConnection();
 
 function formatDate($date) {
