@@ -12,7 +12,7 @@ function isLoggedIn() {
 }
 /** Vérifier si l'utilisateur a un niveau d'accès suffisant pour le rôle requis
  *  rôle allant de 1 (admin) à 10 (aucun droit)
- *  Renvoie True si rôle <= rôle attendu (less is better) 
+ *  Renvoie True si rôle <= rôle attendu
  */
 function hasRole($required_role) {
     initialiserSession(); 
