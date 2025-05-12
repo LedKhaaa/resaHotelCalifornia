@@ -1,7 +1,7 @@
 <?php
 require_once '../auth/authFunctions.php';
 initialiserSession();
-requireRole('standard');
+requireRole('manager');
 
 require_once '../config/db_connect.php';
 $conn = openDatabaseConnection();
